@@ -47,7 +47,6 @@ export default {
                 { "id": "lut", "cfg": [0,1,0,0,0]} 
             ],
             selectedEffect: this.selectedEffectProp,
-            lutResource: this.lutResourceProp,
         }
     },
     computed: {
@@ -89,21 +88,20 @@ export default {
             } else if(effectName === 'none') {
                 xml = `<effects></effects>`;
             } else {
-                xml = `<effects><effect id="${effectName}" cfg="0,0.2,0,0,0" /></effects>`
+                xml = `<effects><effect id="${effectName}" cfg="0,1,0,0,0" /></effects>`
             }
             
-            //TODO: Need to add some logic here to not actually set the effect is resource is empty
-
             xjs.exec('AttachVideoItem', this.selectedItemProp, '0');
             xjs.exec('SetLocalProperty', 'prop:effects', xml);
+
             this.$emit('updateEffect', effectName);
         },
         async setDefaultEffectForItem(itemid) {
-            const effect = await this.getCurrentEffect(itemid);
+            const effect = await this.getCurrentEffect(itemid); // This is effect.name and effect.resource (if set)
             const effectIndex = this.effects.findIndex(x => x.id === effect.name);
             this.selectedEffect = effectIndex;
             if(effect.resource !== undefined) {
-                this.lutResource = effect.resource;
+                this.$emit('updateLutResource', effect.resource);
             }
 
             this.$refs[effectIndex][0].scrollIntoView();
@@ -117,8 +115,9 @@ export default {
             if(this.selectedItemProp === 'none') return; //If the item selected is none, do nothing
             this.setDefaultEffectForItem(itemid);
         },
-        lutResource(resource) {
-            this.$emit('updateLutResource', resource);
+        lutResourceProp(resource) {
+            console.log("Update Item Effect");
+            this.updateItemEffect();
         }
     }
 }

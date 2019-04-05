@@ -8,6 +8,7 @@
                     :selectedItemProp="selectedItem" 
                     :lutResourceProp="lutResource"
                      @updateEffect="setEffect"
+                     @updateLutResource="setLutResource"
                 />
                 <FilterOptions  :effectNameProp="selectedEffectName" :lutResourceProp="lutResource" @updateLutResource="setLutResource" />
             </div>
@@ -37,14 +38,14 @@ export default {
     },
     methods: {
         setSelectedItem(itemid) {
+            this.lutResource = ''; //Clear LUT Resource
             this.selectedItem = itemid;
         },
         setEffect(effectName) {
             this.selectedEffectName = effectName;
         },
-        setLutResource(lutResource) {
-            this.lutResource = lutResource;
-            this.$refs.filterList.updateItemEffect(); // TODO: Find out why it's not updating the video item :/
+        setLutResource(resource) {
+            this.lutResource = resource;
         }
     }
 }

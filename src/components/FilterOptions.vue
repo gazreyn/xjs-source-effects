@@ -4,7 +4,7 @@
             <div class="field-group">
                 <label>LUT file: </label>
                 <div class="control-group">
-                    <input v-model="lutResource" type="text" />
+                    <input :value="lutResourceProp" type="text" />
                     <button @click="openFileDialog">Browse</button>
                 </div>
             </div>
@@ -25,17 +25,11 @@ export default {
             required: true
         }
     },
-    data() {
-        return {
-            lutResource: this.lutResourceProp
-        }
-    },
     methods: {
         openFileDialog() {
             xjs.IO.openFileDialog({'fileMustExist': true},{name: 'LUT Files', extensions: ['png']})
             .then((string) => {
-                this.lutResource = string[0];
-                this.$emit('updateLutResource', this.lutResource);
+                this.$emit('updateLutResource', string[0]);
             });
         },
     }
