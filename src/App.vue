@@ -1,57 +1,50 @@
 <template>
-  <div id="app">
-    <SourceSelection :selectedItemProp="selectedItem" @setItemEffect="updateItemEffect" />
-  </div>
+    <div id="app">
+        <SourceSelection :selectedItemProp="selectedItem" @updateSelectedItem="setSelectedItem" />
+        <div class="section">
+            <div class="controls" :class="{disabled: selectedItem === 'none'}">
+                <FilterList 
+                    ref="filterList" 
+                    :selectedItemProp="selectedItem" 
+                    :lutResourceProp="lutResource"
+                     @updateEffect="setEffect"
+                />
+                <FilterOptions  :effectNameProp="selectedEffectName" :lutResourceProp="lutResource" @updateLutResource="setLutResource" />
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
 import xjs from 'xjs-framework/dist/xjs-es2015'
+import FilterList from '@/components/FilterList.vue'
+import FilterOptions from '@/components/FilterOptions.vue'
 import SourceSelection from '@/components/SourceSelection.vue'
 
 export default {
     components: {
-        SourceSelection
+        FilterList,
+        FilterOptions,        
+        SourceSelection, 
     },  
     name: 'app',
     data() {
         return {
             selectedItem: 'none',
-            selectedEffect: 0,
-            effects: [
-                { "id": "none"},
-                { "id": "bloom", "cfg": [0,1,0,0,0] },
-                { "id": "monochrome", "cfg": [0,1,0,0,0] },
-                { "id": "oldmovie", "cfg": [0,1,0,0,0] },
-                { "id": "sketchpencilstroke", "cfg": [0,1,0,0,0] },
-                { "id": "invertcolor", "cfg": [0,1,0,0,0] },
-                { "id": "magnifysmooth", "cfg": [0,1,0,0,0] },
-                { "id": "cool", "cfg": [0,1,0,0,0] },
-                { "id": "warm", "cfg": [0,1,0,0,0] },
-                { "id": "sincity", "cfg": [0,1,0,0,0] },
-                { "id": "median3x3", "cfg": [0,1,0,0,0] },
-                { "id": "median5x5", "cfg": [0,1,0,0,0] },
-                { "id": "lut", "cfg": [0,1,0,0,0]} 
-            ]
-        }
-    },
-    computed: {
-        selectedEffectName() {
-            return this.effects[this.selectedEffect].id;
+            lutResource: '',
+            selectedEffectName: ''
         }
     },
     methods: {
-        async updateItemEffect(itemid, effect) { //effect.id + effect.resource
+        setSelectedItem(itemid) {
             this.selectedItem = itemid;
-            // TODO: Set the item effect here            
-            console.log(itemid, effect);
         },
-        async applyItemEffect() {
-            
-        }
-    },
-    watch: {
-        selectedEffect(index) {
-            // selectedEffectName = lut and there's no lut resource, do nothing
+        setEffect(effectName) {
+            this.selectedEffectName = effectName;
+        },
+        setLutResource(lutResource) {
+            this.lutResource = lutResource;
+            this.$refs.filterList.updateItemEffect(); // TODO: Find out why it's not updating the video item :/
         }
     }
 }
@@ -72,6 +65,39 @@ html, body {
     border: 1px solid #5A5A5A;
     padding: 8px;
     margin: 5px;
+    .controls {
+        border: 1px solid #000;
+        display: flex;
+        height: 388px;
+        position: relative;
+        &.disabled {
+            pointer-events: none;
+        }
+        &.disabled::after {
+            content: 'Choose a Source';
+            font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
+            position: absolute;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+    }
+}
 
+::-webkit-scrollbar-track {
+    background: #000;
+    /* box-shadow: inset 0 0 5px grey;  */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #5A5A5A;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgb(68, 68, 68);
+}
+
+::-webkit-scrollbar {
+    width: 3px;
 }
 </style>
