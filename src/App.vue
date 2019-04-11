@@ -2,38 +2,25 @@
     <div id="app">
         <SourceSelection :selectedItemProp="selectedItem" @updateSelectedItem="setSelectedItem" />
         <div class="section">
-            <div class="controls" :class="{disabled: selectedItem === 'none'}">
-                <FilterList 
-                    ref="filterList" 
-                    :selectedItemProp="selectedItem" 
-                    :lutResourceProp="lutResource"
-                     @updateEffect="setEffect"
-                     @updateLutResource="setLutResource"
-                />
-                <FilterOptions  :effectNameProp="selectedEffectName" :lutResourceProp="lutResource" @updateLutResource="setLutResource" />
-            </div>
+            <FilterSelection :selectedItem="selectedItem" />
         </div>
     </div>
 </template>
 
 <script>
 import xjs from 'xjs-framework/dist/xjs-es2015'
-import FilterList from '@/components/FilterList.vue'
-import FilterOptions from '@/components/FilterOptions.vue'
+import FilterSelection from '@/components/FilterSelection.vue'
 import SourceSelection from '@/components/SourceSelection.vue'
 
 export default {
     components: {
-        FilterList,
-        FilterOptions,        
+        FilterSelection,        
         SourceSelection, 
     },  
     name: 'app',
     data() {
         return {
             selectedItem: 'none',
-            lutResource: '',
-            selectedEffectName: ''
         }
     },
     methods: {
@@ -41,12 +28,16 @@ export default {
             this.lutResource = ''; //Clear LUT Resource
             this.selectedItem = itemid;
         },
-        setEffect(effectName) {
-            this.selectedEffectName = effectName;
+        prepareExtensionWindow() {
+            xjs.ExtensionWindow.resize(354, 465);
+            xjs.ExtensionWindow.setTitle("Source Filters");
+            xjs.ExtensionWindow.setBorder(1);
         },
-        setLutResource(resource) {
-            this.lutResource = resource;
-        }
+    },
+    created() {
+        xjs.ready().then(() => {
+            this.prepareExtensionWindow();
+        });
     }
 }
 </script>
@@ -66,23 +57,6 @@ html, body {
     border: 1px solid #5A5A5A;
     padding: 8px;
     margin: 5px;
-    .controls {
-        border: 1px solid #000;
-        display: flex;
-        height: 388px;
-        position: relative;
-        &.disabled {
-            pointer-events: none;
-        }
-        &.disabled::after {
-            content: 'Choose a Source';
-            font-size: 16px;
-            display: flex; align-items: center; justify-content: center;
-            position: absolute;
-            width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-    }
 }
 
 ::-webkit-scrollbar-track {

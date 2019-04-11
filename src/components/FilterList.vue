@@ -3,10 +3,10 @@
         <ul class="filters">
             <li class="filter-item"
                 v-for="(effect, index) in effects" 
-                :ref="index"
+                :ref="effects[index].id" 
                 :key="index" 
-                @click="selectedEffect = index"
-                :class="{selected: index === selectedEffect}"
+                :class="{selected: effects[index].id === selectedEffect.id}"
+                @click="updateSelectedEffect(effects[index])"
             >
                 <img :src="getFilterImage(effect.id)" />
                 {{effect.id}}
@@ -19,105 +19,43 @@
 import xjs from 'xjs-framework/dist/xjs-es2015'
 export default {
     props: {
-        selectedItemProp: {
-            type: String,
+        selectedEffect: {
             required: true
         },
-        selectedEffectProp: {
-            type: Number,
-            default: 0,
-        },
-        lutResourceProp: String
+        selectedItem: {
+            required: true
+        }
     },
     data() {
         return {
             effects: [
                 { "id": "none"},
-                { "id": "bloom", "cfg": [0,1,0,0,0] },
-                { "id": "monochrome", "cfg": [0,1,0,0,0] },
-                { "id": "oldmovie", "cfg": [0,1,0,0,0] },
-                { "id": "sketchpencilstroke", "cfg": [0,1,0,0,0] },
-                { "id": "invertcolor", "cfg": [0,1,0,0,0] },
-                { "id": "magnifysmooth", "cfg": [0,1,0,0,0] },
-                { "id": "cool", "cfg": [0,1,0,0,0] },
-                { "id": "warm", "cfg": [0,1,0,0,0] },
-                { "id": "sincity", "cfg": [0,1,0,0,0] },
-                { "id": "median3x3", "cfg": [0,1,0,0,0] },
-                { "id": "median5x5", "cfg": [0,1,0,0,0] },
-                { "id": "lut", "cfg": [0,1,0,0,0]} 
-            ],
-            selectedEffect: this.selectedEffectProp,
-        }
-    },
-    computed: {
-        selectedEffectName() {
-            return this.effects[this.selectedEffect].id;
+                { "id": "bloom"},
+                { "id": "monochrome"},
+                { "id": "oldmovie" },
+                { "id": "sketchpencilstroke" },
+                { "id": "invertcolor" },
+                { "id": "magnifysmooth" },
+                { "id": "cool" },
+                { "id": "warm" },
+                { "id": "sincity" },
+                { "id": "median3x3" },
+                { "id": "median5x5" },
+                { "id": "lut" } 
+            ]
         }
     },
     methods: {
-        async getCurrentEffect(itemid) {
-            xjs.exec('AttachVideoItem', itemid, '0');
-            const rawEffectXML = await xjs.exec('GetLocalProperty', 'prop:effects');
-            const xmlParser = new DOMParser();
-            const effectXML = xmlParser.parseFromString(rawEffectXML, 'text/xml');
-
-            const effect = {};
-
-            if(effectXML.getElementsByTagName('effect')[0] === undefined) { //If no xml node effect, set the name to none
-                effect.name = 'none';
-                return effect; 
-            }
-
-            effect.name = effectXML.getElementsByTagName('effect')[0].getAttribute('id'); // This is the xml name of the effect
-            if(effect.name === 'lut') { 
-                effect.resource = effectXML.getElementsByTagName('resource')[0].getAttribute('file'); 
-            }
-            return effect;
-        },
         getFilterImage(effectName) {
             return require(`../assets/${effectName}.png`);
         },
-        updateItemEffect() {
-            if(this.selectedItemProp === 'none') return; //No item selected
-            this.setItemEffect(this.selectedEffectName);
-        },
-        setItemEffect(effectName) {
-            let xml = '';
-            if(effectName === 'lut') {
-                xml = `<effects><effect id="${effectName}" cfg="0,1,0,0,0"><resource file="${this.lutResourceProp}" /></effect></effects>`;
-            } else if(effectName === 'none') {
-                xml = `<effects></effects>`;
-            } else {
-                xml = `<effects><effect id="${effectName}" cfg="0,1,0,0,0" /></effects>`
-            }
-            
-            xjs.exec('AttachVideoItem', this.selectedItemProp, '0');
-            xjs.exec('SetLocalProperty', 'prop:effects', xml);
-
-            this.$emit('updateEffect', effectName);
-        },
-        async setDefaultEffectForItem(itemid) {
-            const effect = await this.getCurrentEffect(itemid); // This is effect.name and effect.resource (if set)
-            const effectIndex = this.effects.findIndex(x => x.id === effect.name);
-            this.selectedEffect = effectIndex;
-            if(effect.resource !== undefined) {
-                this.$emit('updateLutResource', effect.resource);
-            }
-
-            this.$refs[effectIndex][0].scrollIntoView();
+        updateSelectedEffect(effect) {
+            this.$emit('changeSelectedEffect', effect);
         }
     },
     watch: {
-        selectedEffect() {
-            this.updateItemEffect();
-        },
-        selectedItemProp(itemid) {
-            if(this.selectedItemProp === 'none') return; //If the item selected is none, do nothing
-            this.setDefaultEffectForItem(itemid);
-        },
-        lutResourceProp(resource) {
-            console.log("Update Item Effect");
-            this.updateItemEffect();
+        selectedEffect(value) {
+            this.$refs[this.selectedEffect.id][0].scrollIntoViewIfNeeded();
         }
     }
 }
