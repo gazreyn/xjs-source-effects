@@ -26,14 +26,10 @@ export default {
     },
     watch: {
         selectedItem(itemid) {
-            // this.setCurrentItemEffect(itemid);
-            this.updateSelectedItem(itemid);
+            this.$emit('updateSelectedItem', itemid); //When the user changes the camera from the dropdown, let the parent know
         }
     },
     methods: {
-        updateSelectedItem(itemid) {
-            this.$emit('updateSelectedItem', itemid);
-        },
         async getItems() {
             this.selectedItem = 'none';
             const activeScene = await xjs.Scene.getActiveScene();

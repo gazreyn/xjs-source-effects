@@ -47,6 +47,8 @@ export default {
         setLutResource(resource) {
             this.lutResource = resource;
         }
+        //TODO: Set up extension window settings such as size, window type etc 
+        //TODO: Add events for adding new source and also selecting source
     }
 }
 </script>
