@@ -36,11 +36,18 @@ export default {
             const items = await activeScene.getItems();
             this.items = items;
         },
+        selectSourceFromScene(itemid) {
+            if(itemid === null) return this.selectedItem = 'none';
+            this.selectedItem = itemid;
+        }
     },
     mounted() {
         xjs.ready().then(() => {
             this.getItems();
+            xjs.ExtensionWindow.on('sources-list-select', this.selectSourceFromScene);
+            xjs.ExtensionWindow.on('sources-list-update', this.getItems);
         });
+        // xjs.ExtensionWindow.on('sources-list-update', this.getItems); // Use this to refetch cam list on source list change
     }
 }
 </script>
